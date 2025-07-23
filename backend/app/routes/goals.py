@@ -13,7 +13,7 @@ def create_goal(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_active_user),
 ):
-    db_goal = models.Goal(**goal.dict(), user_id=current_user.id)
+    db_goal = models.Goal(**goal.model_dump(), user_id=current_user.id)
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)

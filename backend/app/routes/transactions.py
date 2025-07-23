@@ -41,7 +41,7 @@ def create_transaction(
     """
     Cria uma nova transação.
     """
-    db_transaction = models.Transaction(**transaction.dict(), user_id=current_user.id)
+    db_transaction = models.Transaction(**transaction.model_dump(), user_id=current_user.id)
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)

@@ -13,7 +13,7 @@ def create_work_session(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_active_user),
 ):
-    db_session = models.WorkSession(**session.dict(), user_id=current_user.id)
+    db_session = models.WorkSession(**session.model_dump(), user_id=current_user.id)
     db.add(db_session)
     db.commit()
     db.refresh(db_session)

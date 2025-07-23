@@ -10,10 +10,6 @@ from .routes import (
 )
 from .db import models, database
 
-# Cria as tabelas no banco de dados (se não existirem)
-# Em um cenário de produção, você provavelmente usaria Alembic para migrações.
-models.Base.metadata.create_all(bind=database.engine)
-
 app = FastAPI(
     title="Driver-App Backend",
     description="API para o aplicativo de gestão financeira para motoristas.",

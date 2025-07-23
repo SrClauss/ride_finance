@@ -1,8 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
+# FIX 1: Importar os modelos para que o SQLAlchemy os reconheça
+from app.db import models
 from app.db.database import Base, get_db
 from app.main import app
 
@@ -18,53 +20,47 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# --- Fixture principal para os testes ---
+# --- Fixtures de Teste Refatoradas ---
 
 @pytest.fixture(scope="function")
-def db_session():
+def db_session() -> Session:
     """
-    Fixture que cria um banco de dados limpo para cada teste.
+    Cria uma nova sessão de banco de dados com uma transação para cada teste.
+    A transação é revertida (rollback) ao final, isolando os testes.
     """
-    # Cria todas as tabelas
     Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
+    connection = engine.connect()
+    transaction = connection.begin()
+    db = TestingSessionLocal(bind=connection)
+
     try:
         yield db
     finally:
         db.close()
-        # Remove todas as tabelas após o teste
+        transaction.rollback()
+        connection.close()
         Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
-def client(db_session):
+def client(db_session: Session) -> TestClient:
     """
-    Fixture que cria um cliente de teste e sobrescreve a dependência do DB.
+    Cria um cliente de teste que usa a sessão de banco de dados de teste.
     """
 
     def override_get_db():
-        """
-        Substitui a função get_db original para usar a sessão de teste.
-        """
-        try:
-            yield db_session
-        finally:
-            db_session.close()
+        yield db_session
 
-    # Aplica a substituição na aplicação
     app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
-    # Limpa a substituição depois do teste
+    test_client = TestClient(app)
+    yield test_client
     app.dependency_overrides.clear()
-    
-    
-# Adicione ao final de tests/conftest.py
+
 
 @pytest.fixture(scope="function")
-def authenticated_client(client: TestClient, db_session):
+def authenticated_client(client: TestClient) -> TestClient:
     """
-    Fixture que cria um usuário, faz login e retorna um cliente
-    já com o header de autorização configurado.
+    Cria um usuário, faz login e retorna um cliente já autenticado.
     """
     user_data = {
         "username": "testauthuser",
@@ -73,17 +69,16 @@ def authenticated_client(client: TestClient, db_session):
         "full_name": "Authenticated User",
         "phone": "1122334455"
     }
-    # Registrar usuário
-    client.post("/api/auth/register", json=user_data)
+    response = client.post("/api/auth/register", json=user_data)
+    assert response.status_code == 200, f"Falha ao registrar usuário: {response.text}"
 
-    # Fazer login para obter token
     login_response = client.post(
         "/api/auth/token",
         data={"username": user_data["username"], "password": user_data["password"]},
     )
+    assert login_response.status_code == 200, f"Falha ao fazer login: {login_response.text}"
     token = login_response.json()["access_token"]
 
-    # Configurar o header de autorização
     client.headers["Authorization"] = f"Bearer {token}"
-    
+
     return client

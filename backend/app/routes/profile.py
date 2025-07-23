@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from collections import defaultdict
 
@@ -50,7 +50,7 @@ def get_comprehensive_profile(
 
     # 3. Calcular Performance Mensal (últimos 12 meses)
     monthly_stats = []
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     for i in range(12):
         month_start = (now.replace(day=1) - timedelta(days=i * 30)).replace(day=1)
         month_end_year = month_start.year
@@ -60,10 +60,15 @@ def get_comprehensive_profile(
             month_end_month = 1
         else:
             month_end_month += 1
-        month_end = datetime(month_end_year, month_end_month, 1) - timedelta(seconds=1)
+        # Garante que o final do mês também seja 'aware' para a comparação
+        month_end = datetime(
+            month_end_year, month_end_month, 1, tzinfo=timezone.utc
+        ) - timedelta(seconds=1)
 
         month_tx = [
-            t for t in all_transactions if month_start <= t.date <= month_end
+            # Compara datetimes 'aware' com 'aware'.
+            # Assume-se que as datas no banco (naive) estão em UTC.
+            t for t in all_transactions if t.date and month_start <= t.date.replace(tzinfo=timezone.utc) <= month_end
         ]
         month_income = sum(t.amount for t in month_tx if t.type == "income")
         month_expenses = sum(t.amount for t in month_tx if t.type == "expense")
@@ -126,16 +131,19 @@ def get_comprehensive_profile(
         net_profit=total_earnings - total_expenses,
         total_hours=total_hours,
         average_per_trip=total_earnings / total_trips if total_trips > 0 else Decimal(0),
-        average_per_hour=total_earnings / (total_minutes / 60) if total_minutes > 0 else Decimal(0),
+        average_per_hour=total_earnings / (Decimal(total_minutes) / 60) if total_minutes > 0 else Decimal(0),
         best_month_earnings=best_month.income if best_month else Decimal(0),
         monthly_average_earnings=monthly_average,
     )
 
     # O 'personal_info' é o schema User que já definimos
+    # A lógica do status do plano deve ser executada ANTES da validação do Pydantic,
+    # espelhando o que é feito em outras rotas como /auth/user.
+    now = datetime.now(timezone.utc)
+    trial_active = current_user.trial_ends_at and now <= current_user.trial_ends_at
+    plan_status = "active" if current_user.is_paid or trial_active else "inactive"
+    current_user.plan_status = plan_status
     personal_info = schemas.User.model_validate(current_user)
-    # Simulação do status do plano
-    personal_info.plan_status = "active" if current_user.is_paid else "inactive"
-
 
     return {
         "personal_info": personal_info,

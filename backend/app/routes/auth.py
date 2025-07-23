@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -34,22 +34,21 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(database.get_d
 
     hashed_password = security.get_password_hash(user.password)
     # Exclui o campo 'password' do dicionário antes de criar o modelo
-    user_data = user.dict(exclude={"password"})
+    user_data = user.model_dump(exclude={"password"})
     db_user = models.User(**user_data, password=hashed_password)
 
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
-    # Lógica para determinar o status do plano, como no código original
-    # (Pode ser ajustado conforme necessário)
-    now = datetime.utcnow()
+    # Lógica para determinar o status do plano
+    now = datetime.now(timezone.utc)
     trial_active = db_user.trial_ends_at and now <= db_user.trial_ends_at
     plan_status = "active" if db_user.is_paid or trial_active else "inactive"
     
-    # Adiciona o campo computado ao objeto antes de retornar
+    # Adiciona o campo computado ao objeto ORM ANTES da validação
+    db_user.plan_status = plan_status
     response_user = schemas.User.model_validate(db_user)
-    response_user.plan_status = plan_status
     
     return response_user
 
@@ -85,11 +84,12 @@ def read_current_user(
     """
     Retorna os dados do usuário autenticado.
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     trial_active = current_user.trial_ends_at and now <= current_user.trial_ends_at
     plan_status = "active" if current_user.is_paid or trial_active else "inactive"
 
+    # Adiciona o campo computado ao objeto ORM ANTES da validação
+    current_user.plan_status = plan_status
     response_user = schemas.User.model_validate(current_user)
-    response_user.plan_status = plan_status
 
     return response_user
