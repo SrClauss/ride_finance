@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # --- Schemas de Token ---
@@ -38,8 +38,7 @@ class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
 
-    class Config:
-        orm_mode = True  # Permite que o Pydantic leia dados de objetos ORM
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schema para os dados do usuário que são retornados pela API (seguro, sem senha)
@@ -67,8 +66,7 @@ class Category(CategoryBase):
     id: int
     is_default: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Schemas de Transação ---
@@ -89,8 +87,7 @@ class Transaction(TransactionBase):
     id: int
     user_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Schemas de Sessão de Trabalho ---
@@ -109,8 +106,7 @@ class WorkSession(WorkSessionBase):
     id: int
     user_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Schemas de Meta ---
@@ -135,9 +131,7 @@ class Goal(GoalBase):
     id: int
     user_id: int
 
-    class Config:
-        orm_mode = True
-        
+    model_config = ConfigDict(from_attributes=True)
         
         
 # (Adicione estas classes ao final do arquivo app/models/schemas.py)

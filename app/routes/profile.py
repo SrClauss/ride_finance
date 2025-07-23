@@ -132,7 +132,7 @@ def get_comprehensive_profile(
     )
 
     # O 'personal_info' é o schema User que já definimos
-    personal_info = schemas.User.from_orm(current_user)
+    personal_info = schemas.User.model_validate(current_user)
     # Simulação do status do plano
     personal_info.plan_status = "active" if current_user.is_paid else "inactive"
 

@@ -15,7 +15,7 @@ from ..db import database, models
 load_dotenv()
 
 # --- Configurações de Segurança ---
-SECRET_KEY = os.getenv("JWT_SECRET", "your-default-secret-key")
+SECRET_KEY = os.getenv("JWT_SECRET")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 dias
 
