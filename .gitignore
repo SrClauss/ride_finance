@@ -1,0 +1,50 @@
+# Ambientes Virtuais
+/venv
+/env
+/.venv
+/virtual
+/venv.bak
+/env.bak
+
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Arquivos de banco de dados locais e de teste
+*.sqlite3
+*.db
+sql_app.db
+test.db
+
+# Arquivos de configuração de IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Arquivos de dependências e builds do Python
+pip-wheel-metadata/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de log
+*.log
+
+# Arquivos de ambiente - MUITO IMPORTANTE!
+.env
+.env.*
+!.env.example
+
+# Relatórios de teste e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
