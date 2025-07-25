@@ -61,8 +61,11 @@ def login_for_access_token(
     """
     Autentica o usuário e retorna um token de acesso.
     """
-    # A função authenticate_user não existe em security, vamos criá-la aqui.
-    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+    
+    
+    
+    user = db.query(models.User).filter(models.User.username == form_data.username or models.User.email == form_data.username).first()
+    
     if not user or not security.verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

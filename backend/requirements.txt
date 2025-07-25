@@ -1,14 +1,18 @@
+# Web Framework
 fastapi
 uvicorn[standard]
+
+# Banco de Dados e Migrações
 sqlalchemy
-psycopg2-binary
+alembic
+
+# Validação de Dados (usado pelo FastAPI/Pydantic)
 pydantic[email]
-python-jose[cryptography]
+
+# Segurança e Autenticação (Hashing de senha, JWT)
 passlib[bcrypt]
+python-jose[cryptography]
 python-multipart
+
+# Utilitários
 python-dotenv
-pandas
-openpyxl
-pypdf
-pytest
-httpx
