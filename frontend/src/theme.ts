@@ -1,26 +1,10 @@
 import { createTheme, responsiveFontSizes, ThemeOptions } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 
-// Augment the palette to include your custom colors
-declare module '@mui/material/styles' {
-  interface Palette {
-    surface: Palette['primary'];
-    surfaceVariant: Palette['primary'];
-    onSurface: Palette['primary'];
-    outline: Palette['primary'];
-  }
-  interface PaletteOptions {
-    surface?: PaletteOptions['primary'];
-    surfaceVariant?: PaletteOptions['primary'];
-    onSurface?: PaletteOptions['primary'];
-    outline?: PaletteOptions['primary'];
-  }
-}
-
-// Common theme settings shared between light and dark modes
+// Opções de tema base
 const commonSettings: ThemeOptions = {
   shape: {
-    borderRadius: 8, // Corresponds to --radius: 0.5rem (assuming 1rem = 16px)
+    borderRadius: 12,
   },
   typography: {
     fontFamily: [
@@ -33,109 +17,93 @@ const commonSettings: ThemeOptions = {
       'sans-serif',
     ].join(','),
   },
-  components: {
-    // Example of applying card-hover effect to all cards
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          transition: 'transform 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-          },
-        },
-      },
-    },
-    // Progress bar animation
-    MuiLinearProgress: {
-        styleOverrides: {
-            bar: {
-                transition: 'width 0.3s ease'
-            }
-        }
-    }
-  },
 };
 
-// Function to create a theme based on mode (light/dark)
+// Função que cria e retorna o tema configurado
 export const getTheme = (mode: 'light' | 'dark') => {
-  let theme = createTheme(deepmerge(commonSettings, {
+  const theme = createTheme(deepmerge(commonSettings, {
     palette: {
       mode,
-      ...(mode === 'light'
+      ...(mode === 'dark'
         ? {
-            // Palette values for LIGHT mode
-            primary: {
-              main: 'hsl(207, 90%, 54%)',
-              contrastText: 'hsl(211, 100%, 99%)',
-            },
-            secondary: {
-              main: 'hsl(60, 4.8%, 95.9%)',
-              contrastText: 'hsl(24, 9.8%, 10%)',
-            },
-            error: {
-              main: 'hsl(0, 84.2%, 60.2%)',
-              contrastText: 'hsl(60, 9.1%, 97.8%)',
-            },
-            warning: {
-                main: 'hsl(36, 100%, 56%)',
-            },
-            success: {
-                main: 'hsl(122, 45%, 49%)',
-            },
+            // Paleta de cores para o MODO ESCURO
+            primary: { main: 'hsl(207, 90%, 54%)' },
+            error: { main: '#f44336' },
             text: {
-              primary: 'hsl(20, 14.3%, 4.1%)',
-              secondary: 'hsl(25, 5.3%, 44.7%)',
-            },
-            background: {
-              default: 'hsl(240, 10%, 7.5%)', // Using --surface for the main background
-              paper: 'hsl(0, 0%, 100%)',
-            },
-            divider: 'hsl(20, 5.9%, 90%)',
-            // Custom colors
-            surface: { main: 'hsl(240, 10%, 7.5%)' },
-            surfaceVariant: { main: 'hsl(240, 10%, 11.8%)' },
-            onSurface: { main: 'hsl(0, 0%, 87.8%)' },
-            outline: { main: 'hsl(240, 3.7%, 27.5%)' },
-          }
-        : {
-            // Palette values for DARK mode
-            primary: {
-              main: 'hsl(207, 90%, 54%)',
-              contrastText: 'hsl(211, 100%, 99%)',
-            },
-            secondary: {
-              main: 'hsl(240, 3.7%, 15.9%)',
-              contrastText: 'hsl(0, 0%, 98%)',
-            },
-            error: {
-              main: 'hsl(0, 62.8%, 30.6%)',
-              contrastText: 'hsl(0, 0%, 98%)',
-            },
-            warning: {
-                main: 'hsl(36, 100%, 56%)',
-            },
-            success: {
-                main: 'hsl(122, 45%, 49%)',
-            },
-            text: {
-              primary: 'hsl(0, 0%, 98%)',
+              primary: '#FFFFFF',
               secondary: 'hsl(240, 5%, 64.9%)',
             },
             background: {
-              default: 'hsl(240, 10%, 3.9%)',
-              paper: 'hsl(240, 10%, 7.5%)', // using --surface for paper in dark mode
+              // AQUI VOCÊ PODE MUDAR A COR DE FUNDO DA PÁGINA PARA OS SEUS TESTES
+              default: '#121212', 
+              paper: '#1E1E1E', // Cor de fundo para elementos como o Card
             },
-            divider: 'hsl(240, 3.7%, 15.9%)',
-            // Custom colors
-            surface: { main: 'hsl(240, 10%, 7.5%)' },
-            surfaceVariant: { main: 'hsl(240, 10%, 11.8%)' },
-            onSurface: { main: 'hsl(0, 0%, 87.8%)' },
-            outline: { main: 'hsl(240, 3.7%, 27.5%)' },
+            divider: 'rgba(255, 255, 255, 0.12)',
+          }
+        : {
+            // Paleta de cores para o MODO CLARO
+            primary: { main: 'hsl(207, 90%, 54%)' },
+            background: { default: '#FFFFFF', paper: '#F5F5F5' },
           }),
     },
-  }));
+    components: {
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    color: 'hsl(240, 5%, 64.9%)',
+                    '&.Mui-focused': { color: 'hsl(207, 90%, 54%)' }
+                }
+            }
+        },
+        MuiInputBase: {
+            styleOverrides: {
+                input: ({ theme }) => ({
+                    // Define o esquema de cores para o input, melhorando a compatibilidade
+                    // com o autofill do Firefox em temas escuros, que era o ponto que faltava.
+                    colorScheme: 'dark',
 
-  // Apply responsive font sizes
-  theme = responsiveFontSizes(theme);
-  return theme;
+                    '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active': {
+                        // O truque da sombra interna para forçar a cor de fundo.
+                        // Usamos !important, como você sugeriu, para garantir a sobreposição.
+                        WebkitBoxShadow: `0 0 0 100px ${theme.palette.background.paper} inset !important`,
+                        // Força a cor do texto usando o tema e !important.
+                        WebkitTextFillColor: `${theme.palette.text.primary} !important`,
+                        // Garante que a cor do cursor (caret) seja consistente.
+                        caretColor: theme.palette.text.primary,
+                        borderRadius: 'inherit',
+                        // O "HACK" DA TRANSIÇÃO LONGA: engana o navegador para não aplicar o seu estilo.
+                        transition: 'background-color 5000s ease-in-out 0s',
+                    },
+                    // Mantém o espaçamento interno
+                    paddingLeft: '8px !important',
+                }),
+            }
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    // Mantém o fundo sólido para garantir consistência visual
+                    backgroundColor: '#1E1E1E',
+                    '&:hover': {
+                        backgroundColor: '#1E1E1E',
+                    },
+                    '&.Mui-focused': {
+                        backgroundColor: '#1E1E1E',
+                    },
+
+                    '& .MuiInputAdornment-positionStart': { marginLeft: '8px' },
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.23)' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(207, 90%, 54%)',
+                        borderWidth: '1px',
+                    },
+                },
+            },
+        },
+    }
+  }));
+  
+  return responsiveFontSizes(theme);
 }
+  
