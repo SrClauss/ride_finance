@@ -33,7 +33,7 @@ export default function LoginPage() {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [errors, setErrors] = React.useState({ username: '', password: '' });
-  
+
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [notification, setNotification] = React.useState({ open: false, message: '', severity: 'error' as 'error' | 'success' });
@@ -47,8 +47,8 @@ export default function LoginPage() {
       tempErrors.username = 'O nome de usuário é obrigatório.';
     }
     if (!password) {
-        isValid = false;
-        tempErrors.password = 'A senha é obrigatória.';
+      isValid = false;
+      tempErrors.password = 'A senha é obrigatória.';
     }
     setErrors(tempErrors);
     return isValid;
@@ -105,7 +105,7 @@ export default function LoginPage() {
           Seu controle na direção certa
         </Typography>
       </Stack>
-      
+
       <Card
         elevation={0}
         sx={{
@@ -117,7 +117,7 @@ export default function LoginPage() {
         <Typography variant="h5" component="h2" sx={{ mb: 3, fontWeight: 'medium', textAlign: 'center' }}>
           Acessar sua conta
         </Typography>
-        
+
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2.5}>
             <TextField
@@ -129,13 +129,19 @@ export default function LoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               error={!!errors.username}
               helperText={errors.username}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-              }}
+              slotProps={
+                {
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Email sx={{ color: 'text.secondary' }} />
+                      </InputAdornment>)
+
+
+                  }
+                }
+              }
+
             />
             <TextField
               label="Senha"
@@ -146,19 +152,22 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               error={!!errors.password}
               helperText={errors.password}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                      {showPassword ? <VisibilityOff sx={{ color: 'text.secondary' }} /> : <Visibility sx={{ color: 'text.secondary' }} />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock sx={{ color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff sx={{ color: 'text.secondary' }} /> : <Visibility sx={{ color: 'text.secondary' }} />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
             <Button
@@ -174,9 +183,9 @@ export default function LoginPage() {
             </Button>
           </Stack>
         </Box>
-        
+
         <Divider sx={{ my: 3, color: 'text.secondary', fontSize: '0.8rem' }}>ou</Divider>
-        
+
         <Button
           component={NextLink}
           href="/register"

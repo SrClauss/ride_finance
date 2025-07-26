@@ -1,4 +1,4 @@
-import { createTheme, responsiveFontSizes, ThemeOptions } from '@mui/material/styles';
+import { createTheme, responsiveFontSizes, ThemeOptions, Theme } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 
 // Opções de tema base
@@ -49,15 +49,15 @@ export const getTheme = (mode: 'light' | 'dark') => {
     components: {
         MuiInputLabel: {
             styleOverrides: {
-                root: {
-                    color: 'hsl(240, 5%, 64.9%)',
-                    '&.Mui-focused': { color: 'hsl(207, 90%, 54%)' }
-                }
+                root: ({ theme }: { theme: Theme }) => ({
+                    color: theme.palette.text.secondary,
+                    '&.Mui-focused': { color: theme.palette.primary.main },
+                }),
             }
         },
         MuiInputBase: {
             styleOverrides: {
-                input: ({ theme }) => ({
+                input: ({ theme }: { theme: Theme }) => ({
                     // Define o esquema de cores para o input, melhorando a compatibilidade
                     // com o autofill do Firefox em temas escuros, que era o ponto que faltava.
                     colorScheme: 'dark',
@@ -81,24 +81,24 @@ export const getTheme = (mode: 'light' | 'dark') => {
         },
         MuiOutlinedInput: {
             styleOverrides: {
-                root: {
+                root: ({ theme }: { theme: Theme }) => ({
                     // Mantém o fundo sólido para garantir consistência visual
-                    backgroundColor: '#1E1E1E',
+                    backgroundColor: theme.palette.background.paper,
                     '&:hover': {
-                        backgroundColor: '#1E1E1E',
+                        backgroundColor: theme.palette.background.paper,
                     },
                     '&.Mui-focused': {
-                        backgroundColor: '#1E1E1E',
+                        backgroundColor: theme.palette.background.paper,
                     },
 
                     '& .MuiInputAdornment-positionStart': { marginLeft: '8px' },
                     '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.23)' },
                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(207, 90%, 54%)',
+                        borderColor: theme.palette.primary.main,
                         borderWidth: '1px',
                     },
-                },
+                }),
             },
         },
     }
