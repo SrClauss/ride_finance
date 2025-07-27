@@ -34,9 +34,9 @@ export const getTheme = (mode: 'light' | 'dark') => {
               secondary: 'hsl(240, 5%, 64.9%)',
             },
             background: {
-              // AQUI VOCÊ PODE MUDAR A COR DE FUNDO DA PÁGINA PARA OS SEUS TESTES
-              default: '#121212', 
-              paper: '#1E1E1E', // Cor de fundo para elementos como o Card
+           
+              default: '#000024ff', 
+              paper: '#1e1e1eff', // Cor de fundo para elementos como o Card
             },
             divider: 'rgba(255, 255, 255, 0.12)',
           }
@@ -65,7 +65,7 @@ export const getTheme = (mode: 'light' | 'dark') => {
                     '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active': {
                         // O truque da sombra interna para forçar a cor de fundo.
                         // Usamos !important, como você sugeriu, para garantir a sobreposição.
-                        WebkitBoxShadow: `0 0 0 100px ${theme.palette.background.paper} inset !important`,
+                        WebkitBoxShadow: `0 0 0 100px ${theme.palette.background.default} inset !important`,
                         // Força a cor do texto usando o tema e !important.
                         WebkitTextFillColor: `${theme.palette.text.primary} !important`,
                         // Garante que a cor do cursor (caret) seja consistente.
@@ -82,15 +82,6 @@ export const getTheme = (mode: 'light' | 'dark') => {
         MuiOutlinedInput: {
             styleOverrides: {
                 root: ({ theme }: { theme: Theme }) => ({
-                    // Mantém o fundo sólido para garantir consistência visual
-                    backgroundColor: theme.palette.background.paper,
-                    '&:hover': {
-                        backgroundColor: theme.palette.background.paper,
-                    },
-                    '&.Mui-focused': {
-                        backgroundColor: theme.palette.background.paper,
-                    },
-
                     '& .MuiInputAdornment-positionStart': { marginLeft: '8px' },
                     '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.23)' },
                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },

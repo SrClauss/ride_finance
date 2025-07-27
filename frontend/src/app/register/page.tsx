@@ -34,11 +34,15 @@ export default function SignUp() {
         event.preventDefault();
     };
     const onBlurTelefone = (event: React.FocusEvent<HTMLInputElement>) => {
-
-        console.log("abruaba");
-
-
-
+        // Formata o número de telefone ao perder o foco
+        let value = event.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+        if (value.length === 11) {
+            value = value.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        } else if (value.length === 10) {
+            value = value.replace(/^(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        }
+        // Atualiza o estado apenas com o valor formatado
+        setPhone(value);
     }
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -55,7 +59,7 @@ export default function SignUp() {
         }
 
         try {
-            const response = await fetch('http://localhost:8000/api/users/', {
+            const response = await fetch('http://localhost:8000/api/auth/register/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,17 +69,29 @@ export default function SignUp() {
                     full_name: fullName,
                     username: username,
                     password: password,
-                    phone_number: phone
+                    phone: phone.replace(/\D/g, '') // Envia apenas os números para o backend
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                // Registro bem-sucedido, redireciona para a página de login
-                router.push('/login');
+                // Registro bem-sucedido, redireciona para a página de pagamento
+                router.push('/payment');
             } else {
                 // Falha no registro
-                const data = await response.json();
-                setError(data.detail || 'Ocorreu um erro durante o registro.');
+                if (data.detail) {
+                    if (Array.isArray(data.detail)) {
+                        // Lida com erros de validação do FastAPI (HTTP 422)
+                        const firstError = data.detail[0];
+                        setError(`Erro no campo '${firstError.loc[1]}': ${firstError.msg}`);
+                    } else {
+                        // Lida com outros erros baseados em string (ex: HTTP 400)
+                        setError(data.detail);
+                    }
+                } else {
+                    setError('Ocorreu um erro durante o registro. Status: ' + response.status);
+                }
             }
         } catch (err) {
             setError('Não foi possível conectar ao servidor. Tente novamente mais tarde.');

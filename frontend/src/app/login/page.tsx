@@ -123,6 +123,7 @@ export default function LoginPage() {
             <TextField
               label="Nome de Usuário"
               fullWidth
+              variant="outlined"
               autoComplete="username"
               autoFocus
               value={username}
@@ -147,6 +148,7 @@ export default function LoginPage() {
               label="Senha"
               type={showPassword ? 'text' : 'password'}
               fullWidth
+              variant="outlined"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
